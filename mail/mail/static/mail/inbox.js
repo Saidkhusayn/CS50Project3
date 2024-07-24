@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
@@ -38,6 +37,7 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
+
     // Clear previous emails
     document.querySelector('#emails-view').innerHTML += '';
 
@@ -45,12 +45,30 @@ function load_mailbox(mailbox) {
     emails.forEach(email => {
       const emailDiv = document.createElement('div');
       emailDiv.className = 'email';
-      emailDiv.dataset.emailId = email.id;
-      emailDiv.innerHTML = `
-        <span>${email.sender}</span>
-        <span>${email.subject}</span>
-        <span>${email.timestamp}</span>
-      `;
+      emailDiv.dataset.emailId = email.id; // Set the email id as a data attribute
+
+      if (mailbox === 'inbox') {
+        emailDiv.innerHTML = `
+          <span>${email.sender}</span>
+          <span>${email.subject}</span>
+          <span>${email.timestamp}</span>
+          <button class="btn btn-sm btn-outline-primary archive-btn">Archive</button>
+        `;
+      } else if (mailbox === 'archive') {
+        emailDiv.innerHTML = `
+          <span>${email.sender}</span>
+          <span>${email.subject}</span>
+          <span>${email.timestamp}</span>
+          <button class="btn btn-sm btn-outline-primary unarchive-btn">Unarchive</button>
+        `;
+      } else {
+        emailDiv.innerHTML = `
+          <span>${email.sender}</span>
+          <span>${email.subject}</span>
+          <span>${email.timestamp}</span>
+        `;
+      }
+
       emailDiv.style.border = '1px solid black';
       emailDiv.style.padding = '10px';
       emailDiv.style.margin = '10px';
@@ -61,14 +79,28 @@ function load_mailbox(mailbox) {
 
       // Append the email div to the emails-view
       document.querySelector('#emails-view').appendChild(emailDiv);
-    });
 
-    // Add event listener for email clicks using event delegation
-    document.querySelector('#emails-view').addEventListener('click', (event) => {
-      const emailDiv = event.target.closest('.email');
-      if (emailDiv) {
-        const emailId = emailDiv.dataset.emailId;
-        display_email(emailId);
+      // Handle email clicks
+      emailDiv.addEventListener('click', () => display_email(email.id));
+
+      // Handle (un)archive buttons
+      const archiveButton = emailDiv.querySelector('.archive-btn');
+      const unarchiveButton = emailDiv.querySelector('.unarchive-btn');
+
+      if (archiveButton) {
+        archiveButton.addEventListener('click', event => {
+          event.stopPropagation();
+          archive_email(email.id)
+            load_mailbox('inbox') // Refresh the inbox after archiving
+        });
+      }
+
+      if (unarchiveButton) {
+        unarchiveButton.addEventListener('click', event => {
+          event.stopPropagation();
+          unarchive_email(email.id)
+            load_mailbox('archive') // Refresh the inbox after archiving
+        });
       }
     });
   })
@@ -134,4 +166,22 @@ function display_email(email_id) {
       read: true
     })
   });
+}
+
+function archive_email(email_id) {
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      archived: true
+    })
+  })
+}
+
+function unarchive_email(email_id) {
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      archived: false
+    })
+  })
 }
