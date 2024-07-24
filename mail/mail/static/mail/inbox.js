@@ -41,7 +41,7 @@ function load_mailbox(mailbox) {
     // Loop through each email and create a div for it
     emails.forEach(email => {
       const emailDiv = document.createElement('div');
-      emailDiv.className = 'email';
+      emailDiv.id = 'email';
       emailDiv.innerHTML = `
         <span>${email.sender}</span>
         <span>${email.subject}</span>
@@ -56,6 +56,10 @@ function load_mailbox(mailbox) {
 
       // Append the email div to the emails-view
       document.querySelector('#emails-view').appendChild(emailDiv);
+
+        // Handle email clicks
+      document.querySelector('#email').addEventListener('click',  () => display_email(email.id))
+
     });
   })
   .catch(error => {
@@ -85,5 +89,37 @@ function send_email(event) {
     // Load the sent mailbox
     load_mailbox('sent');
   });
+
+}
+
+function display_email (email_id) {
+
+  fetch(`/emails/${email_id}`)
+  .then(response => response.json())
+  .then(email => {
+    console.log(email)
+    document.querySelector("#email-display").innerHTML = `
+        <div>
+        <h5>From: ${email.sender}</h5>
+        <h5>To: ${email.recipients}</h5>
+        <h5>Subject: ${email.subject}</h5>
+        <h5>Timestamp: ${email.timestamp}</h5>
+        <hr>
+        <p>${email.body}</p>
+      </div>
+    `
+  })
+
+  fetch(`/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      read: true
+  })
+  })
+
+// Show the email page and hide other views
+document.querySelector('#emails-view').style.display = 'none';
+document.querySelector('#compose-view').style.display = 'none';
+document.querySelector('#email-display').style.display = 'block';
 
 }
