@@ -91,7 +91,6 @@ function load_mailbox(mailbox) {
         archiveButton.addEventListener('click', event => {
           event.stopPropagation();
           archive_email(email.id)
-            load_mailbox('inbox') // Refresh the inbox after archiving
         });
       }
 
@@ -99,7 +98,6 @@ function load_mailbox(mailbox) {
         unarchiveButton.addEventListener('click', event => {
           event.stopPropagation();
           unarchive_email(email.id)
-            load_mailbox('archive') // Refresh the inbox after archiving
         });
       }
     });
@@ -175,6 +173,9 @@ function archive_email(email_id) {
       archived: true
     })
   })
+  .then(() => {
+    load_mailbox('inbox') 
+  })
 }
 
 function unarchive_email(email_id) {
@@ -183,5 +184,8 @@ function unarchive_email(email_id) {
     body: JSON.stringify({
       archived: false
     })
+  })
+  .then(() => {
+    load_mailbox('archive') 
   })
 }
