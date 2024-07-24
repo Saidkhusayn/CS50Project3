@@ -49,23 +49,37 @@ function load_mailbox(mailbox) {
 
       if (mailbox === 'inbox') {
         emailDiv.innerHTML = `
-          <span>${email.sender}</span>
-          <span>${email.subject}</span>
-          <span>${email.timestamp}</span>
+        <div>
+          <div class='spans'>
+          <span> ${email.sender}</span>
+          <span> ${email.subject}</span>
+          <span> ${email.timestamp}</span>
+          </div>
+          <div>
           <button class="btn btn-sm btn-outline-primary archive-btn">Archive</button>
+          </div>
+        </div>
         `;
       } else if (mailbox === 'archive') {
         emailDiv.innerHTML = `
-          <span>${email.sender}</span>
-          <span>${email.subject}</span>
-          <span>${email.timestamp}</span>
+        <div>
+          <div class='spans'>
+          <span> ${email.sender}</span>
+          <span> ${email.subject}</span>
+          <span> ${email.timestamp}</span>
+          </div>
           <button class="btn btn-sm btn-outline-primary unarchive-btn">Unarchive</button>
+        </div>
         `;
       } else {
         emailDiv.innerHTML = `
-          <span>${email.sender}</span>
-          <span>${email.subject}</span>
-          <span>${email.timestamp}</span>
+          <div>
+          <div class='spans'>
+          <span> ${email.sender}</span>
+          <span> ${email.subject}</span>
+          <span> ${email.timestamp}</span>
+          </div>
+        </div>
         `;
       }
 
@@ -75,7 +89,7 @@ function load_mailbox(mailbox) {
       emailDiv.style.cursor = 'pointer';
 
       // Set background color based on whether the email is read or not
-      emailDiv.style.backgroundColor = email.read ? 'lightgray' : 'white';
+      emailDiv.style.backgroundColor = email.read ? 'white' : 'lightgray';
 
       // Append the email div to the emails-view
       document.querySelector('#emails-view').appendChild(emailDiv);
@@ -116,6 +130,9 @@ function send_email(event) {
 
   fetch('/emails', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({
       recipients: recipient,
       subject: subject,
@@ -128,6 +145,9 @@ function send_email(event) {
     console.log(result);
     // Load the sent mailbox
     load_mailbox('sent');
+  })
+  .catch(error => {
+    console.error('Error:', error);
   });
 }
 

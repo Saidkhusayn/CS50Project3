@@ -1,3 +1,30 @@
 textarea {
     min-height: 400px;
 }
+
+.email {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.email span {
+    margin-right: 25px;
+}
+
+.email div{
+    display: flex;
+    justify-content: space-between;
+}
+
+#compose-view {
+    margin-top: 20px;
+}
+
+#compose-form .form-group {
+    margin-bottom: 15px;
+}
+
+
