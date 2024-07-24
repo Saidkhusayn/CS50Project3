@@ -143,10 +143,14 @@ function display_email(email_id) {
         <h5>To: ${email.recipients}</h5>
         <h5>Subject: ${email.subject}</h5>
         <h5>Timestamp: ${email.timestamp}</h5>
+        <button class="btn btn-sm btn-outline-primary reply-btn">Reply</button>
         <hr>
         <p>${email.body}</p>
       </div>
     `;
+
+    // Handle reply button
+    document.querySelector('.reply-btn').onclick = () => reply_email(email_id)
 
     // Show the email view and hide other views
     document.querySelector('#emails-view').style.display = 'none';
@@ -189,3 +193,25 @@ function unarchive_email(email_id) {
     load_mailbox('archive') 
   })
 }
+
+function reply_email(email_id) {
+  // Show the compose email and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-display').style.display = 'none';
+
+  // Fetch the specific email to reply to
+  fetch(`/emails/${email_id}`)
+  .then(response => response.json())
+  .then(email => {
+    // Pre-fill the composition fields for the reply
+    document.querySelector('#compose-recipients').value = email.sender;
+    document.querySelector('#compose-subject').value = email.subject.startsWith('Re:') ? email.subject : `Re: ${email.subject}`;
+    document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote: \n${email.body}`;
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+  
+}
+
